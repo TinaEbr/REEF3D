@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -81,8 +81,10 @@ void sflow_turb_ke_IM1::start(lexer *p, fdm2D *b, ghostcell *pgc, sflow_convecti
 
 	eddyvisc(p,b,pgc);
 
-    //SLICELOOP4
-    //b->test(i,j) = kin(i,j);
+    SLICELOOP4
+    b->kin(i,j) = kin(i,j);
+    
+    pgc->gcsl_start4(p,b->kin,gcval_kin);
 }
 
 void sflow_turb_ke_IM1::ktimesave(lexer* p, fdm2D *b, ghostcell *pgc)

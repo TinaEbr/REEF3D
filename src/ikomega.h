@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -39,13 +39,17 @@ public:
 	virtual void jsource(lexer*,fdm*);
 	virtual void ksource(lexer*,fdm*);
 	virtual void kinsource(lexer*,fdm*,vrans*);
-	virtual void epssource(lexer*,fdm*,vrans*);
+	virtual void epssource(lexer*,fdm*,vrans*,field&);
 	virtual void epsfsf(lexer*,fdm*,ghostcell*);
 	virtual void eddyvisc(lexer*,fdm*,ghostcell*,vrans*);
 	virtual void clearfield(lexer*,fdm*,field&);
 
 	int count,q;
 	double starttime;
+    
+private:
+    double epsi;
+	double dirac;
 };
 
 #endif

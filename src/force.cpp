@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -98,8 +98,6 @@ void force::start(lexer *p, fdm *a, ghostcell *pgc)
         print_force(p,a,pgc);
         }
     
-    pgc->gcxsd_update(p, a, a->test);
-    pgc->gcbsd_update(p, a, a->test);
     pgc->start4(p,a->press,gcval_press);
 } 
 

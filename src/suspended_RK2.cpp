@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -77,6 +77,7 @@ void suspended_RK2::start(fdm* a, lexer* p, convection* pconvec, diffusion* pdif
     bcsusp_start(p,a,pgc,s,a->conc);
     sedfsf(p,a,a->conc);
 	pgc->start4(p,a->conc,gcval_susp);
+    fillconc(p,a,s);
 
 	p->susptime=pgc->timer()-starttime;
 
@@ -89,7 +90,7 @@ void suspended_RK2::ctimesave(lexer *p, fdm* a)
 void suspended_RK2::fill_wvel(lexer *p, fdm* a, ghostcell *pgc, sediment_fdm *s)
 {
     WLOOP
-    wvel(i,j,k) = a->w(i,j,k) + s->ws;
+    wvel(i,j,k) = a->w(i,j,k) - s->ws;
     
     pgc->start3(p,wvel,12);
 }
@@ -115,6 +116,19 @@ void suspended_RK2::bcsusp_start(lexer* p, fdm* a,ghostcell *pgc, sediment_fdm *
         k=p->gcb4[n][2];
         
         conc(i,j,k) =  s->cb(i,j);
+    }
+}
+
+void suspended_RK2::fillconc(lexer* p, fdm* a, sediment_fdm *s)
+{
+    GC4LOOP
+    if(p->gcb4[n][4]==5)
+    {
+        i=p->gcb4[n][0];
+        j=p->gcb4[n][1];
+        k=p->gcb4[n][2];
+        
+        s->conc(i,j) = a->conc(i,j,k+1);
     }
 }
 

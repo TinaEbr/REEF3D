@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -73,6 +73,10 @@ private:
     double dist3,dist4,expinverse,db;
     
     double visc;
+    
+    int *temp;
+    int gcval_eta,gcval_fifsf;
+    const double eps;
     
     sliceint4 bx,by;
     int count_n;

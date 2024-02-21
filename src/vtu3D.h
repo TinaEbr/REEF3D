@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -38,13 +38,15 @@ class force;
 class vorticity;
 class solver;
 class probe_point;
+class probe_pressure;
 class probe_line;
 class bedprobe_point;
 class bedprobe_max;
 class gage_discharge_x;
+class gage_discharge_window_x;
 class fsf_vtp;
 class topo_vtp;
-class state;
+class cfd_state;
 class bedshear_probe;
 class bedshear_max;
 class sloshing_force;
@@ -53,6 +55,7 @@ class bedprobe_line_x;
 class bedprobe_line_y;
 class exportfile;
 class flowfile_out;
+class print_averaging;
 
 #ifndef VTU3D_H_
 #define VTU3D_H_
@@ -97,6 +100,7 @@ private:
     force **pforce;
     vorticity *pvort;
 	probe_point *pprobe;
+    probe_pressure *ppressprobe;
 	probe_line *pline;
 	bedprobe_point *pbedpt;
 	bedprobe_line_x *pbedlinex;
@@ -105,13 +109,15 @@ private:
 	bedshear_probe *pbedshear;
 	bedshear_max *pbedshearmax;
 	gage_discharge_x *pq;
+    gage_discharge_window_x *pqw;
 	fsf_vtp *pfsf;
     topo_vtp *ptopo;
-	state *pstate;
+	cfd_state *pstate;
     sloshing_force *pslosh;
 	print_porous *ppor;
     exportfile *pexport;
     flowfile_out *pflowfile;
+    print_averaging *pmean;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -25,7 +25,6 @@ Author: Hans Bihs
 #include"field.h"
 #include"math.h"
 #include"density_f.h"
-
 
 void ghostcell::dirichlet_ortho(lexer *p,field& f,double dist,int gcv, int bc, int cs)
 {

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -333,6 +333,7 @@ void iowave::active_beach(lexer *p, fdm* a, ghostcell* pgc, field &u, field &v, 
 		
 		//-----------------------------------------------		
 		// PRESSURE
+    
 		for(n=0;n<p->gcslout_count;n++)
 		{
 		i=p->gcslout[n][0];
@@ -355,7 +356,7 @@ void iowave::active_beach(lexer *p, fdm* a, ghostcell* pgc, field &u, field &v, 
 		wsf=wsfmax[i][j];
         
         
-        
+    
         eta_T = 0.0;
         eta_M = wsf-p->wd; 
         eta_R = fabs(eta_M-eta_T);
@@ -395,9 +396,18 @@ void iowave::active_beach(lexer *p, fdm* a, ghostcell* pgc, field &u, field &v, 
 			{
 			pval=(wsf - p->pos_z()+0.5*p->DZP[KP])*a->ro(i,j,k)*fabs(p->W22);
 			
+
 			a->press(i+1*aa,j+1*bb,k)=H*pval + (1.0-H)*a->press(i,j,k);
 			a->press(i+2*aa,j+2*bb,k)=H*pval + (1.0-H)*a->press(i,j,k);
 			a->press(i+3*aa,j+3*bb,k)=H*pval + (1.0-H)*a->press(i,j,k);
+            
+            /*
+            if(p->B30==2)
+            {
+            a->press(i+1*aa,j+1*bb,k) = a->press(i,j,k);
+            a->press(i+2*aa,j+2*bb,k) = a->press(i,j,k);
+            a->press(i+3*aa,j+3*bb,k) = a->press(i,j,k);
+            }*/
 			
 			w(i+1*aa,j+1*bb,k)=0.0;
 			w(i+2*aa,j+2*bb,k)=0.0;
@@ -408,7 +418,7 @@ void iowave::active_beach(lexer *p, fdm* a, ghostcell* pgc, field &u, field &v, 
         
         
         // NSEWAVE
-        if(p->A10==5)
+        if(p->A10==55)
         for(n=0;n<p->gcslawa1_count;++n)
 		{
 		i=p->gcslawa1[n][0];

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -199,26 +199,4 @@ void fnpf_print_wsf::ini_location(lexer *p, fdm_fnpf *c)
     if(jloc[n]>=0 && jloc[n]<p->knoy)
     flag[n]=1;
     }
-}
-
-int fnpf_print_wsf::conv(double a)
-{
-
-    int b,c;
-    double d,diff;
-
-    c= int( a);
-    d=double(c);
-    diff=a-d;
-
-    b=c;
-
-    if(diff>0.5)
-    b=c+1;
-
-    if(diff<=-0.5)
-    b=c-1;
-
-    return b;
-
 }

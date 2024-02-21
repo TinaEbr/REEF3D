@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -50,9 +50,10 @@ void iowave::eta_relax(lexer *p, ghostcell *pgc, slice &f)
 		if(p->B99==1 || p->B99==2)
 		{
             // Zone 2
+            if(p->A10!=3 || p->A348==1 || p->A348==2)
             if(db<1.0e20)
             {
-            
+            if(p->wet[IJ]==1)
             f(i,j) = relax4_nb(i,j)*f(i,j);
             }
         }

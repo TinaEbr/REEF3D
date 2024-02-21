@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -21,6 +21,7 @@ Author: Hans Bihs
 --------------------------------------------------------------------*/
 
 #include"ghostcell.h"
+#include"lexer.h"
 #include"field.h"
 #include"vec.h"
 #include"fdm.h"
@@ -96,5 +97,52 @@ void ghostcell::gcV_neumann(vec &x, int gcv, int bc, int cs, int id)
     x.V[I_J_Kp1_4]=x.V[I_J_K_4];
     x.V[I_J_Kp2_4]=x.V[I_J_K_4];
     x.V[I_J_Kp3_4]=x.V[I_J_K_4];
+    }
+}
+
+void ghostcell::neumannV(double *f, int gcv, int bc, int cs)
+{
+	if(cs==1)
+    {
+	f[Im1JK]=f[IJK];
+    f[Im2JK]=f[IJK];
+    f[Im2JK]=f[IJK];
+    }
+    
+    if(cs==2)
+    {
+	f[IJp1K]=f[IJK];
+    f[IJp2K]=f[IJK];
+    f[IJp3K]=f[IJK];
+    }
+    
+    if(cs==3)
+    {
+	f[IJm1K]=f[IJK];
+    f[IJm2K]=f[IJK];
+    f[IJm3K]=f[IJK];
+    
+    cout<<"NEUMAN"<<endl;
+    }
+    
+    if(cs==4)
+    {
+	f[Ip1JK]=f[IJK];
+    f[Ip2JK]=f[IJK];
+    f[Ip3JK]=f[IJK];
+    }
+    
+    if(cs==5)
+    {
+	f[IJKm1]=f[IJK];
+    f[IJKm2]=f[IJK];
+    f[IJKm3]=f[IJK];
+    }
+    
+    if(cs==6)
+    {
+	f[IJKp1]=f[IJK];
+    f[IJKp2]=f[IJK];
+    f[IJKp3]=f[IJK];
     }
 }

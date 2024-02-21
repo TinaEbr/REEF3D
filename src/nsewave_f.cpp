@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -84,11 +84,11 @@ nsewave_f::~nsewave_f()
 
 void nsewave_f::start(lexer* p, fdm* a, ghostcell* pgc, momentum *pmom, diffusion *pdiff, turbulence *pturb,
                       convection* pconvec, pressure *ppress, poisson *ppois, solver *ppoissonsolv, solver *psolv, 
-                      ioflow* pflow, vrans* pvrans)
+                      ioflow* pflow, vrans* pvrans, sixdof *p6dof, vector<net*>& pnet)
 {
     
     // Momentum
-    pmom->start(p,a,pgc,pvrans);
+    pmom->start(p,a,pgc,pvrans,p6dof,pnet);
     
     
     

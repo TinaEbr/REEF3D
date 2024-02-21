@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -48,6 +48,7 @@ private:
     void  topovel(lexer*,ghostcell*,sediment_fdm*,double&,double&,double&);
     void  timestep(lexer*,ghostcell*,sediment_fdm*);
     void  non_equillibrium_solve(lexer*,ghostcell*,sediment_fdm*);
+    double  susp_qb(lexer*,ghostcell*,sediment_fdm*);
     
     bedconc *pcb;
     topo_relax *prelax;
@@ -63,7 +64,6 @@ private:
     double maxdh,maxvz;
 	double vx,vy,vz;
 	double vzmax;
-    double ws;
     double rhosed, rhowat, g, d50;
     double Ls;
     double tau_eff, shearvel_eff, shields_eff;

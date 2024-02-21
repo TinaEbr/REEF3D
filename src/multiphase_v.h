@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -43,7 +43,7 @@ class multiphase_v : public multiphase
 public:
 	multiphase_v();
 	virtual ~multiphase_v();
-	virtual void start(lexer*,fdm*,ghostcell*,convection*,solver*,ioflow*,reini*,particlecorr*,printer*);
+	virtual void start(lexer*,fdm*,ghostcell*,convection*,solver*,ioflow*,reini*,particle_corr*,printer*);
 	virtual void ini(lexer*,fdm*,ghostcell*,ioflow*,printer*,convection*,solver*);
 	virtual void update(lexer*,fdm*,ghostcell*);
 	

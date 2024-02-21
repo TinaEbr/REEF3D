@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -92,6 +92,16 @@ void bicgstab_ijk::start(lexer* p,fdm* a, ghostcell* pgc, field &f, vec& rhsvec,
 	solve(p,a,pgc,rhsvec,var,p->solveriter,p->N46,stop_crit);
 	
 	finalize(p,a,f);
+}
+
+void bicgstab_ijk::startV(lexer* p, ghostcell* pgc, double *f, vec& rhs, matrix_diag &M, int var)
+{
+    
+}
+
+void bicgstab_ijk::startf(lexer* p, ghostcell* pgc, field &f, vec& rhs, matrix_diag &M, int var)
+{
+    
 }
 
 void bicgstab_ijk::startM(lexer* p, ghostcell* pgc, double *x, double *rhs, double *M, int var)

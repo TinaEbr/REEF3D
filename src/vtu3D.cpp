@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -35,6 +35,7 @@ Author: Hans Bihs
 #include"vorticity_f.h"
 #include"vorticity_void.h"
 #include"probe_point.h"
+#include"probe_pressure.h"
 #include"probe_line.h"
 #include"bedprobe_point.h"
 #include"bedprobe_max.h"
@@ -42,9 +43,10 @@ Author: Hans Bihs
 #include"data.h"
 #include"concentration.h"
 #include"gage_discharge_x.h"
+#include"gage_discharge_window_x.h"
 #include"fsf_vtp.h"
 #include"topo_vtp.h"
-#include"state.h"
+#include"cfd_state.h"
 #include"bedshear_probe.h"
 #include"bedshear_max.h"
 #include"bedprobe_line_x.h"
@@ -53,8 +55,9 @@ Author: Hans Bihs
 #include"sediment.h"
 #include"sloshing_force.h"
 #include"print_porous.h"
-#include"export.h"
 #include"flowfile_out.h"
+#include"print_averaging_f.h"
+#include"print_averaging_v.h"
 #include<sys/stat.h>
 #include<sys/types.h>
 
@@ -112,17 +115,22 @@ vtu3D::vtu3D(lexer* p, fdm *a, ghostcell *pgc) : nodefill(p), eta(p)
 	pwsfline_x=new print_wsfline_x(p,a,pgc);
 	pwsfline_y=new print_wsfline_y(p,a,pgc);
 	pprobe = new probe_point(p,a,pgc);
+    ppressprobe = new probe_pressure(p,a,pgc);
 	pline = new probe_line(p,a,pgc);
 	pq = new gage_discharge_x(p,a,pgc);
+    pqw = new gage_discharge_window_x(p,a,pgc);
+    
+    if(p->P21==0)
+    pmean = new print_averaging_v(p,a,pgc);
+    
+    if(p->P21==1)
+    pmean = new print_averaging_f(p,a,pgc);
 
 	if(p->P180==1)
 	pfsf = new fsf_vtp(p,a,pgc);
     
     if(p->P190==1)
 	ptopo = new topo_vtp(p,a,pgc);
-
-    if(p->P210==1)
-	pexport = new exportfile(p,a,pgc);
 
 	if(p->P75==0)
 	pvort = new vorticity_void(p,a);
@@ -155,12 +163,12 @@ vtu3D::vtu3D(lexer* p, fdm *a, ghostcell *pgc) : nodefill(p), eta(p)
 	pforce[n]=new force(p,a,pgc,n);
 
 	if(p->P40>0)
-	pstate=new state(p,a,pgc);
+	pstate=new cfd_state(p,a,pgc);
 
     if(p->P101>0)
 	pslosh=new sloshing_force(p,a,pgc);
 
-	if(p->B270>0 || p->B274>0 || p->B281>0 || p->B291>0 || p->B310>0 || p->B311>0)
+	if(p->B270>0 || p->B274>0 || p->B281>0 || p->B282>0 || p->B291>0 || p->B310>0 || p->B321>0 || p->B322>0 || p->B311>0)
 	{
 	ppor=new print_porous(p,a,pgc);
 	ppor->start(p,a,pgc);
@@ -190,6 +198,8 @@ void vtu3D::ini(lexer* p, fdm* a, ghostcell* pgc)
 void vtu3D::start(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *pheat, ioflow *pflow, solver *psolv, data *pdata, concentration *pconc, multiphase *pmp, sediment *psed)
 {
         pgc->gcparax4a(p,a->phi,5);
+        
+        pmean->averaging(p,a,pgc,pheat);
 
 		// Print out based on iteration
         if(p->count%p->P20==0 && p->P30<0.0 && p->P34<0.0 && p->P10==1 && p->P20>0)
@@ -247,9 +257,15 @@ void vtu3D::start(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *pheat
 
 		if(p->P61>0)
         pprobe->start(p,a,pgc,pturb);
+        
+        if(p->P64>0)
+        ppressprobe->start(p,a,pgc,pturb);
 
 		if(p->P67>0)
 		pq->start(p,a,pgc);
+        
+        if(p->P68>0)
+		pqw->start(p,a,pgc);
 
         if((p->count==0 || p->count==p->count_statestart) && p->P81>0)
         for(n=0;n<p->P81;++n)
@@ -340,27 +356,17 @@ void vtu3D::start(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *pheat
 		printfsftime_wT[qn]+=p->P195_dt[qn];
 		}
 
-        // Print Export
-        if(p->count%p->P211==0 && p->P212<0.0 && p->P210==1)
-		pexport->start(p,a,pgc);
-
-		if((p->simtime>p->exportprinttime && p->P212>0.0 && p->P210==1) || (p->count==0 &&  p->P212>0.0))
-        {
-        pexport->start(p,a,pgc);
-        p->exportprinttime+=p->P212;
-        }
-
         if(p->P230>0)
         pflowfile->start(p,a,pgc,pturb);
 
 		// Print state out based on iteration
-        if(p->count%p->P41==0 && p->P42<0.0 && p->P40>0 && p->P41>0)
+        if(p->count%p->P41==0 && p->P42<0.0 && p->P40>0 && p->P41>0 && (p->P46==0 || (p->count>=p->P46_is && p->count<<p->P46_ie)))
 		{
         pstate->write(p,a,pgc,pturb,psed);
 		}
 
-		// Print sate out based on time
-        if((p->simtime>p->stateprinttime && p->P42>0.0 || (p->count==0 &&  p->P42>0.0)) && p->P40>0)
+		// Print state out based on time
+        if((p->simtime>p->stateprinttime && p->P42>0.0 || (p->count==0 &&  p->P42>0.0)) && p->P40>0 && (p->P47==0 || (p->count>=p->P47_ts && p->count<<p->P47_te)))
         {
         pstate->write(p,a,pgc,pturb,psed);
 
@@ -446,6 +452,8 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	// velocity
 	offset[n]=offset[n-1]+4*(p->pointnum)*3+4;
 	++n;
+    
+    pmean->offset_vtu(p,a,pgc,result,offset,n);
 
 	// scalars
 
@@ -483,15 +491,15 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	offset[n]=offset[n-1]+4*(p->pointnum)+4;
 	++n;
 	}
-
-        // omega_sig
+    
+        // VOF
 	if(p->P72==1)
 	{
 	offset[n]=offset[n-1]+4*(p->pointnum)+4;
 	++n;
 	}
 
-    // Fi
+        // Fi
     if(p->A10==4)
 	{
 	offset[n]=offset[n-1]+4*(p->pointnum)+4;
@@ -566,9 +574,9 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	// Cells
     offset[n]=offset[n-1] + 4*p->tpcellnum*8 + 4;
     ++n;
-    offset[n]=offset[n-1] + 4*(p->tpcellnum)+4;
+    offset[n]=offset[n-1] + 4*(p->tpcellnum) + 4;
     ++n;
-	offset[n]=offset[n-1] + 4*(p->tpcellnum)+4;
+	offset[n]=offset[n-1] + 4*(p->tpcellnum) + 4;
     ++n;
 	//---------------------------------------------
 
@@ -581,7 +589,8 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
     result<<"<PointData >"<<endl;
     result<<"<DataArray type=\"Float32\" Name=\"velocity\" NumberOfComponents=\"3\" format=\"appended\" offset=\""<<offset[n]<<"\" />"<<endl;
     ++n;
-
+    
+    pmean->name_vtu(p,a,pgc,result,offset,n);
 
     result<<"<DataArray type=\"Float32\" Name=\"pressure\"  format=\"appended\" offset=\""<<offset[n]<<"\" />"<<endl;
     ++n;
@@ -614,10 +623,10 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
     result<<"<DataArray type=\"Float32\" Name=\"viscosity\"  format=\"appended\" offset=\""<<offset[n]<<"\" />"<<endl;
     ++n;
 	}
-
+    
     if(p->P72==1)
 	{
-    result<<"<DataArray type=\"Float32\" Name=\"omega_sig\"  format=\"appended\" offset=\""<<offset[n]<<"\" />"<<endl;
+    result<<"<DataArray type=\"Float32\" Name=\"VOF\"  format=\"appended\" offset=\""<<offset[n]<<"\" />"<<endl;
     ++n;
 	}
 
@@ -715,12 +724,15 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	result.write((char*)&ffn, sizeof (float));
 	}
 
+//  time average flow parameters
+    pmean->print_3D(p,a,pgc,result);
+
 //  Pressure
 	iin=4*(p->pointnum);
 	result.write((char*)&iin, sizeof (int));
 	TPLOOP
 	{
-	ffn=float(p->ipol4press(a->press));
+	ffn=float(p->ipol4press(a->press)-p->pressgage);
 	result.write((char*)&ffn, sizeof (float));
 	}
 
@@ -787,15 +799,15 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	result.write((char*)&ffn, sizeof (float));
 	}
 	}
-
-//  omega_sig
+    
+//  VOF
     if(p->P72==1)
 	{
     iin=4*(p->pointnum);
     result.write((char*)&iin, sizeof (int));
 	TPLOOP
 	{
-	ffn=float(p->ipol3(a->omega));
+	ffn=float(p->ipol4(a->vof));
 	result.write((char*)&ffn, sizeof (float));
 	}
 	}
@@ -871,7 +883,7 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	result.write((char*)&iin, sizeof (int));
     TPLOOP
 	{
-	ffn=float(p->pos_z()+0.5*p->DXM);
+	ffn=float(p->pos_z()+0.5*p->DZN[KP]);
 	result.write((char*)&ffn, sizeof (float));
 	}
 
@@ -887,19 +899,7 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
 	}
 	}
 
-	if(p->P28==1 && p->X13==2)
-	{
-//  floating
-    iin=4*(p->pointnum);
-    result.write((char*)&iin, sizeof (int));
-	TPLOOP
-	{
-	ffn=float(p->ipol4_a(a->fb));
-	result.write((char*)&ffn, sizeof (float));
-	}
-	}
-
-    else if (p->P28==1)
+	if(p->P28==1)
 	{
 //  floating
     iin=4*(p->pointnum);
@@ -918,7 +918,7 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
     result.write((char*)&iin, sizeof (int));
 	TPLOOP
 	{
-	ffn=float(p->ipol4(a->walld));
+	ffn=float(p->ipol4_a(a->walld));
 	result.write((char*)&ffn, sizeof (float));
 	}
 	}
@@ -931,54 +931,22 @@ void vtu3D::print3D(fdm* a,lexer* p,ghostcell* pgc, turbulence *pturb, heat *phe
     phase = omega_y*p->simtime;
 
 
-/*
-    if(p->G2==1)
-    {
-    pgc->gcsl_start4(p,a->WL,50);
-    pgc->gcsl_start4(p,a->bed,50);
-
-    pgc->dgcslpol(p,a->WL,p->dgcsl4,p->dgcsl4_count,14);
-    pgc->dgcslpol(p,a->bed,p->dgcsl4,p->dgcsl4_count,14);
-
-    a->WL.ggcpol(p);
-    //a->test.ggcpol(p);
-
-    i=-1;
-    j=-1;
-    if(i+p->origin_i==-1 && j+p->origin_j==-1 )
-    a->WL(i,j) = a->WL(i+1,j+1);
-    }*/
-
-
 	iin=4*(p->pointnum)*3;
 	result.write((char*)&iin, sizeof (int));
     TPLOOP
 	{
-        if(p->G2==0)
-        zcoor=p->ZN[KP1];
-/*
-        if(p->G2==1)
-        {
-        zcoor = p->ZN[KP1]*a->WL(i,j) + a->bed(i,j);
+ 
+    zcoor=p->ZN[KP1];
 
-        if(p->wet[IJ]==0 && p->flagslice4[IJ]>0)
-        zcoor=a->bed(i,j);
-
-        if(i+p->origin_i==-1 && j+p->origin_j==-1 && p->wet[(0-p->imin)*p->jmax + (0-p->jmin)]==1)
-        zcoor = p->ZN[KP1]*a->WL(i,j) + a->bed(i,j);
-
-
-        //cout<<"ZN: "<<p->ZN[KP1]<<" WL: "<<a->WL(i,j)<<" eta: "<<a->eta(i,j)<<" zcoor: "<<zcoor<<endl;
-        }*/
-
-
-    ffn=float( (p->XN[IP1]-p->B192_3)*cos(theta_y*sin(phase)) - (zcoor-p->B192_4)*sin(theta_y*sin(phase)) + p->B192_3);
+    ffn=float( (p->XN[IP1]-p->B192_3)*cos(theta_y*sin(phase)) - (zcoor-p->B192_4)*sin(theta_y*sin(phase)) + p->B192_3 
+                + p->B181_1*sin((2.0*PI*p->B181_2)*p->simtime + p->B181_3));
 	result.write((char*)&ffn, sizeof (float));
 
-	ffn=float(p->YN[JP1]);
+	ffn=float(p->YN[JP1]) + p->B182_1*sin((2.0*PI*p->B182_2)*p->simtime + p->B182_3);
 	result.write((char*)&ffn, sizeof (float));
 
-	ffn=float((p->XN[IP1]-p->B192_3)*sin(theta_y*sin(phase)) + (zcoor-p->B192_4)*cos(theta_y*sin(phase)) + p->B192_4);
+	ffn=float((p->XN[IP1]-p->B192_3)*sin(theta_y*sin(phase)) + (zcoor-p->B192_4)*cos(theta_y*sin(phase)) + p->B192_4
+                + p->B183_1*sin((2.0*PI*p->B183_2)*p->simtime + p->B183_3));
 	result.write((char*)&ffn, sizeof (float));
 	}
 

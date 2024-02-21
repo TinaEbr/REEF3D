@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -23,25 +23,45 @@ Author: Hans Bihs
 #include"6DOF_sflow.h"
 #include"lexer.h"
 #include"fdm.h"
-#include"fdm2D.h"
 #include"ghostcell.h"
 #include"vrans.h"
 
-double sixdof_sflow::ramp(lexer *p)
+double sixdof_sflow::ramp_vel(lexer *p)
 {
     double f=1.0;
     
-    if(p->X205==1 && p->X206==1 && p->simtime<p->X206_T)
+    if(p->X205==1 && p->X206==1 && p->simtime>=p->X206_ts && p->simtime<p->X206_te)
     {
-    f = p->simtime/(p->X206_T);
+    f = (p->simtime-p->X206_ts)/(p->X206_te-p->X206_ts);
     }
     
-    if(p->X205==2 && p->X206==1 && p->simtime<p->X206_T)
+    if(p->X205==2 && p->X206==1 && p->simtime>=p->X206_ts && p->simtime<p->X206_te)
     {
-    f = p->simtime/(p->X206_T) - (1.0/PI)*sin(PI*(p->simtime/(p->X206_T)));
+    f = (p->simtime-p->X206_ts)/(p->X206_te-p->X206_ts)-(1.0/PI)*sin(PI*(p->simtime-p->X206_ts)/(p->X206_te-p->X206_ts));
     }
     
-    //cout<<"RAMP F: "<<f<<endl;
+    if(p->X206==1 && p->simtime<p->X206_ts)
+    f=0.0;
 
+    return f;
+}
+
+double sixdof_sflow::ramp_draft(lexer *p)
+{
+    double f=1.0;
+    
+    if(p->X205==1 && p->X207==1 && p->simtime>=p->X207_ts && p->simtime<p->X207_te)
+    {
+    f = p->simtime/(p->X207_te-p->X207_ts);
+    }
+    
+    if(p->X205==2 && p->X207==1 && p->simtime>=p->X207_ts && p->simtime<p->X207_te)
+    {
+    f = p->simtime/(p->X207_te-p->X207_ts) - (1.0/PI)*sin(PI*(p->simtime/(p->X207_te-p->X207_ts)));
+    }
+    
+    if(p->X207==1 && p->simtime<p->X207_ts)
+    f=0.0;
+    
     return f;
 }

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -29,6 +29,8 @@ class nhflow_print_wsf;
 class nhflow_print_wsf_theory;
 class nhflow_print_wsfline;
 class nhflow_print_wsfline_y;
+class nhflow_print_runup_gage_x;
+class nhflow_print_runup_max_gage_x;
 class nhflow_vtp_fsf;
 class nhflow_vtp_bed;
 class nhflow_state;
@@ -49,6 +51,7 @@ public:
 	virtual ~nhflow_vtu3D();
 	virtual void start(lexer*,fdm_nhf*,ghostcell*,ioflow*);
     virtual void print_vtu(lexer*,fdm_nhf*,ghostcell*);
+    virtual void print_stop(lexer*,fdm_nhf*,ghostcell*,ioflow*);
     
 private:
     void pvtu(lexer*,ghostcell*);
@@ -59,6 +62,7 @@ private:
     char name[200],pname[200],epsvar[200];
     int n,iin,offset[200];
     float ffn;
+    int jj;
     int gcval_phi,gcval_phiext;
 	double *printtime_wT;
     double *printfsftime_wT;
@@ -72,6 +76,8 @@ private:
     nhflow_print_wsf_theory *pwsf_theory;
     nhflow_print_wsfline *pwsfline;
     nhflow_print_wsfline_y *pwsfline_y;
+    nhflow_print_runup_gage_x *prunupx;
+    nhflow_print_runup_max_gage_x *prunupmaxx;
     potentialfile_out *ppotentialfile;
     nhflow_vtp_fsf *pfsf;
     nhflow_vtp_bed *pbed;

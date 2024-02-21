@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -101,20 +101,28 @@ void sediment_exner::topovel(lexer* p, ghostcell *pgc, sediment_fdm *s, double& 
         vx=dqx;
         vy=dqy;
 		
-        // Exner equations
+    // Exner equations
         // eq
         if(p->S17==0)
-        vz =  -prelax->rf(p,pgc)*(1.0/(1.0-p->S24))*(dqx + dqy);// + ws*(s->conc(i,j,k) - pcb->cbed(p,pgc,s)); 
+        vz =  -s->guard(i,j)*prelax->rf(p,pgc)*(1.0/(1.0-p->S24))*(dqx + dqy); //+ susp_qb(p,pgc,s);
+        
         
         // non-eq
         if(p->S17==1)
         {
         Ls = 4000.0*MAX(s->shields_eff(i,j)-s->shields_crit(i,j), 0.0)*d50;
         
-        vz =  prelax->rf(p,pgc)*(1.0/(1.0-p->S24))*(1.0/(Ls>1.0e-10?Ls:1.0e10))*(s->qb(i,j)-s->qbe(i,j));// + ws*(s->conc(i,j,k) - pcb->cbed(p,pgc,s)); 
+        vz =  s->guard(i,j)*prelax->rf(p,pgc)*(1.0/(1.0-p->S24))*(1.0/(Ls>1.0e-10?Ls:1.0e10))*(s->qb(i,j)-s->qbe(i,j));// + ws*(s->conc(i,j,k) - pcb->cbed(p,pgc,s)); 
         }
-        
 	}
+    
+    /*
+    if(p->mpirank==7)
+    SLICELOOP4
+    if(p->flagslice4[IJ]>0 && p->flagslice4[Ip1J]<0)
+    cout<<s->shields_eff(i-2,j)<<" "<<s->shields_eff(i-1,j)<<" "<<s->shields_eff(i,j)<<" "<<s->shields_eff(i+1,j)<<endl;
+    */
+    
     
 }
 

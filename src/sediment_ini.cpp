@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -26,6 +26,7 @@ Author: Hans Bihs
 #include"fdm2D.h"
 #include"ghostcell.h"
 #include"sediment_fdm.h"
+#include"patchBC_interface.h"
 
 void sediment_f::ini_cfd(lexer *p, fdm *a,ghostcell *pgc)
 {
@@ -51,13 +52,14 @@ void sediment_f::ini_cfd(lexer *p, fdm *a,ghostcell *pgc)
     
     topo_zh_update(p,a,pgc,s);
     
+    ini_parameters(p,pgc);
+    ini_guard(p,pgc);
     log_ini(p);
 }
 
 void sediment_f::ini_sflow(lexer *p, fdm2D *b, ghostcell *pgc)
 {
     //relax(p,b,pgc);
-    
     SLICELOOP4
     {
     s->ks(i,j) = p->S20;
@@ -71,5 +73,63 @@ void sediment_f::ini_sflow(lexer *p, fdm2D *b, ghostcell *pgc)
     
     active_ini_sflow(p,b,pgc);
     
+    ini_parameters(p,pgc);
+    ini_guard(p,pgc);
     log_ini(p);
+}
+
+void sediment_f::ini_parameters(lexer *p, ghostcell *pgc)
+{
+    // Fredsøe, p.199
+    double rhosed=p->S22;
+    double rhowat=p->W1;
+    double g=9.81;
+    double d50=p->S20;
+    double visc=p->W2;
+    double Ls = p->S20;
+    double cd = 1.5;
+    
+    //s->ws=1.1*(rhosed/rhowat-1.0)*g*d50*d50;
+    
+    if(p->S23==0)
+    s->ws = sqrt(4.0*(rhosed/rhowat-1.0)*g*d50/(3.0*cd));
+    
+    if(p->S23==1)
+    s->ws = p->S23_val;
+    
+    if(p->mpirank==0)
+    cout<<"ws: "<<s->ws<<endl;
+    
+}
+
+void sediment_f::ini_guard(lexer *p, ghostcell *pgc)
+{
+    SLICELOOP4
+    s->guard(i,j)=1.0;
+    
+    
+    
+    if(p->S78==1)
+    {
+        for(n=0;n<p->gcin_count;++n)
+        {
+        i=p->gcin[n][0];
+        j=p->gcin[n][1];
+
+        s->guard(i,j)=0.0;
+        }
+            
+        for(int qq=0;qq<pBC->obj_count;++qq)
+        for(n=0;n<pBC->patch[qq]->gcb_count;++n)
+        {
+        i=pBC->patch[qq]->gcb[n][0];
+        j=pBC->patch[qq]->gcb[n][1];
+            
+            
+        s->guard(i,j)=0.0;
+        }
+    }
+    
+    
+    pgc->gcsl_start4(p,s->guard,1);
 }

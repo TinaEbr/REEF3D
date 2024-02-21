@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -45,7 +45,8 @@ public:
     nsewave_RK3(lexer*, fdm*, ghostcell*,heat*&,concentration*&);
 	virtual ~nsewave_RK3();
     
-    virtual void start(lexer*, fdm*, ghostcell*, momentum*, diffusion*, turbulence*, convection*, pressure*, poisson*, solver*, solver*, ioflow*, vrans*);
+    virtual void start(lexer*, fdm*, ghostcell*, momentum*, diffusion*, turbulence*, convection*, pressure*, 
+                        poisson*, solver*, solver*, ioflow*, vrans*, sixdof*, vector<net*>&);
     virtual void ini(lexer*, fdm*, ghostcell*, ioflow*);
     void update(lexer*,fdm*,ghostcell*,slice&);
     

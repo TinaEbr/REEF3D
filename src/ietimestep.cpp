@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -105,6 +105,8 @@ void ietimestep::start(fdm *a, lexer *p, ghostcell *pgc, turbulence *pturb)
     a->maxF=pgc->globalmax(a->maxF);
     a->maxG=pgc->globalmax(a->maxG);
     a->maxH=pgc->globalmax(a->maxH);
+    p->fbmax=pgc->globalmax(p->fbmax);
+    p->fbmax=pgc->globalmax(p->fbmax);
 
     // maximum viscosity
 	LOOP
@@ -152,6 +154,7 @@ void ietimestep::start(fdm *a, lexer *p, ghostcell *pgc, turbulence *pturb)
     cu=1.0e10;
     cv=1.0e10;
     cw=1.0e10;
+    cb=1.0e10;
     
     if(p->N50==1)
     LOOP
@@ -181,18 +184,29 @@ void ietimestep::start(fdm *a, lexer *p, ghostcell *pgc, turbulence *pturb)
     
     cu = MIN3(cu,cv,cw);
     
-
 	p->dt=p->N47*cu;
 	p->dt=pgc->timesync(p->dt);
+    
+    
+    // fbdt
+    LOOP
+    {
+    dx = MIN3(p->DXN[IP],p->DYN[JP],p->DZN[KP]);
 
+	cb = MIN(cb, 2.0/sqrt((4.0*fabs(p->fbmax))/dx));
+    }
+    
+    p->fbdt=p->N47*cb;
+    p->fbdt=pgc->timesync(p->fbdt);
 
 	a->maxF=0.0;
 	a->maxG=0.0;
 	a->maxH=0.0;
+    
 }
 
 void ietimestep::ini(fdm* a, lexer* p,ghostcell* pgc)
-{
+{  
     dx = p->DXM;
     
 	p->umax=p->vmax=p->wmax=p->viscmax=-1e19;

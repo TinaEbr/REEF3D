@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -25,11 +25,10 @@ Author: Hans Bihs
 #include<fstream>
 #include"6DOF_sflow.h"
 #include"lexer.h"
-#include"fdm2D.h"
 #include"ghostcell.h"
 
 
-void sixdof_sflow::print_ini_stl(lexer *p, fdm2D *b, ghostcell *pgc)
+void sixdof_sflow::print_ini_stl(lexer *p, ghostcell *pgc)
 {
 	if(p->mpirank==0 && p->P14==1)
     {

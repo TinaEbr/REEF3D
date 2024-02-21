@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -255,7 +255,7 @@ void probe_line::start(lexer *p, fdm *a, ghostcell *pgc, turbulence *pturb)
 			U[n][q] = p->ccipol1(a->u, xp, yp, zp);
 			V[n][q] = p->ccipol2(a->v, xp, yp, zp);
 			W[n][q] = p->ccipol3(a->w, xp, yp, zp);
-			P[n][q] = p->ccipol4_a(a->press, xp, yp, zp);
+			P[n][q] = p->ccipol4_a(a->press, xp, yp, zp) - p->pressgage;
 			K[n][q] = pturb->ccipol_kinval(p, pgc, xp, yp, zp);
 			E[n][q] = pturb->ccipol_epsval(p, pgc, xp, yp, zp);
 			VT[n][q] = p->ccipol4_a(a->eddyv, xp, yp, zp);

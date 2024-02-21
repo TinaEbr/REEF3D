@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -32,7 +32,7 @@ Author: Hans Bihs
 #include"sflow_eta.h"
 #include"sflow_hydrostatic.h"
 #include"sflow_potential.h"
-#include"sflow_vtp.h"
+#include"sflow_vtp_fsf.h"
 #include"sflow_vtp_bed.h"
 #include"6DOF_sflow.h"
 
@@ -159,8 +159,7 @@ void sflow_f::ini(lexer *p, fdm2D* b, ghostcell* pgc)
     psed->ini_sflow(p,b,pgc);
 
     //6DOF ini
-    if(p->X10==3)
-    p6dof_sflow->ini(p,b,pgc);
+    p6dof->ini(p,pgc);
 
     // print
     log_ini(p);
@@ -341,6 +340,22 @@ void sflow_f::ini_fsf(lexer *p, fdm2D* b, ghostcell* pgc)
             b->hy(i+2,j) = MAX(p->F62 - b->bed(i,j),0.0);
             b->hy(i+3,j) = MAX(p->F62 - b->bed(i,j),0.0);
             }
+        }
+        
+        for(n=0;n<p->gcslout_count;n++)
+        {
+        i=p->gcslout[n][0];
+        j=p->gcslout[n][1];
+        
+        b->eta(i,j) = p->F62-p->wd;
+        b->eta(i+1,j) = p->F62-p->wd;
+        b->eta(i+2,j) = p->F62-p->wd;
+        b->eta(i+3,j) = p->F62-p->wd;
+
+        b->hp(i,j) = MAX(b->eta(i+1,j) + p->wd - b->bed(i,j),0.0);
+        b->hp(i+1,j) = MAX(b->eta(i+1,j) + p->wd - b->bed(i,j),0.0);
+        b->hp(i+2,j) = MAX(b->eta(i+2,j) + p->wd - b->bed(i,j),0.0);
+        b->hp(i+3,j) = MAX(b->eta(i+3,j) + p->wd - b->bed(i,j),0.0);
         }
     }
       

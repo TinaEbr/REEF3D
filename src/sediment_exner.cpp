@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -53,7 +53,7 @@ sediment_exner::sediment_exner(lexer* p, ghostcell* pgc) : q0(p),dqx0(p),dqy0(p)
     rhowat=p->W1;
     g=9.81;
     d50=p->S20;
-    ws=1.1*(rhosed/rhowat-1.0)*g*d50*d50;
+    
     Ls = p->S20;
     
     

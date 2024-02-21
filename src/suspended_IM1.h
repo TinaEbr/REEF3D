@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -42,6 +42,7 @@ public:
     void bcsusp_start(lexer*,fdm*,ghostcell*,sediment_fdm*,field&);
 	void sedfsf(lexer*,fdm*,field&);
 	void clearrhs(lexer*,fdm*);
+    void fillconc(lexer*,fdm*,sediment_fdm*);
 
 	int gcval_susp;
 

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -27,6 +27,7 @@ Author: Hans Bihs
 #include"concentration.h"
 #include"density_f.h"
 #include"density_df.h"
+#include"density_sf.h"
 #include"density_comp.h"
 #include"density_conc.h"
 #include"density_heat.h"
@@ -35,10 +36,10 @@ Author: Hans Bihs
 
 poisson_f::poisson_f(lexer *p, heat *&pheat, concentration *&pconc) 
 {
-    if((p->F80==0||p->A10==5) && p->H10==0 && p->W30==0  && p->F300==0 && p->W90==0 && (p->X10==0 || p->X13!=2))
+    if((p->F80==0||p->A10==55) && p->H10==0 && p->W30==0  && p->F300==0 && p->W90==0 && p->X10==0)
 	pd = new density_f(p);
     
-    if((p->F80==0||p->A10==5) && p->H10==0 && p->W30==0  && p->F300==0 && p->W90==0 && (p->X10==1 || p->X13!=2))  
+    if((p->F80==0||p->A10==55) && p->H10==0 && p->W30==0  && p->F300==0 && p->W90==0 && p->X10==1)  
 	pd = new density_df(p);
     
 	if(p->F80==0 && p->H10==0 && p->W30==1  && p->F300==0 && p->W90==0)
@@ -58,6 +59,9 @@ poisson_f::poisson_f(lexer *p, heat *&pheat, concentration *&pconc)
     
     if(p->F300>=1)
     pd = new density_rheo(p);
+    
+    if(p->G3==1)  
+	pd = new density_sf(p);
 }
 
 poisson_f::~poisson_f()
@@ -91,9 +95,7 @@ void poisson_f::start(lexer* p, fdm *a, field &press)
 	++n;
 	}
     
-    // explicit zero-gradient boundary conditions
-    if(p->D32==1)
-    {
+
     n=0;
 	LOOP
 	{
@@ -134,50 +136,6 @@ void poisson_f::start(lexer* p, fdm *a, field &press)
 		}
 	++n;
 	}
-    }
     
-    // implicit zero-gradient boundary conditions
-    if(p->D32==2)
-    {
-    n=0;
-	LOOP
-	{
-		if(p->flag4[Im1JK]<0 && (i+p->origin_i>0 || p->periodic1==0))
-		{
-        a->rhsvec.V[n] -= a->M.s[n]*press(i-1,j,k);
-		a->M.s[n] = 0.0;
-		}
-		
-		if(p->flag4[Ip1JK]<0 && (i+p->origin_i<p->gknox-1 || p->periodic1==0))
-		{
-		a->M.p[n] += a->M.n[n];
-		a->M.n[n] = 0.0;
-		}
-		
-		if(p->flag4[IJm1K]<0 && (j+p->origin_j>0 || p->periodic2==0))
-		{
-		a->M.p[n] += a->M.e[n];
-		a->M.e[n] = 0.0;
-		}
-		
-		if(p->flag4[IJp1K]<0 && (j+p->origin_j<p->gknoy-1 || p->periodic2==0))
-		{
-		a->M.p[n] += a->M.w[n];
-		a->M.w[n] = 0.0;
-		}
-		
-		if(p->flag4[IJKm1]<0 && (k+p->origin_k>0 || p->periodic3==0))
-		{
-		a->M.p[n] += a->M.b[n];
-		a->M.b[n] = 0.0;
-		}
-		
-		if(p->flag4[IJKp1]<0 && (k+p->origin_k<p->gknoz-1 || p->periodic3==0))
-		{
-		a->M.p[n] += a->M.t[n];
-		a->M.t[n] = 0.0;
-		}
-	++n;
-	}
-    }
+  
 }

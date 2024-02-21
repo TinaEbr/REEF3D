@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -44,7 +44,7 @@ void fnpf_state::write_result(lexer *p, fdm_fnpf *c, ghostcell *pgc)
 	result.open(name, ios::binary);
     }
      
-    // head section
+    // read head section
     iin=file_version;
     result.write((char*)&iin, sizeof (int));
     
@@ -72,8 +72,7 @@ void fnpf_state::write_result(lexer *p, fdm_fnpf *c, ghostcell *pgc)
     ddn=p->stateprinttime;
     result.write((char*)&ddn, sizeof (double)); 
     
-    // result section
-    
+    // read result section
     for(i=is;i<ie;++i)
     for(j=js;j<je;++j)
     PSLICECHECK4

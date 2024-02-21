@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -179,4 +179,13 @@ void sediment_void::offset_vtu_parameter2(lexer *p, ghostcell *pgc, ofstream &re
 double sediment_void::bedshear_point(lexer *p, fdm *a,ghostcell *pgc)
 {
 	return 0.0;
+}
+
+void sediment_void::start_susp(lexer *p, fdm *a, ghostcell *pgc, ioflow *pflow, solver *psolv)
+{
+}
+
+void sediment_void::ctimesave(lexer *p, fdm* a)
+{
+
 }

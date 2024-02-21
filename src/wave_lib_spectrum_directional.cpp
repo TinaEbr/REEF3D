@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -102,7 +102,12 @@ void wave_lib_spectrum::directional_spreading(lexer* p) // modified
             // Yu's Single Summation Method frequency vector
             if (p->B136 == 3)
             {
-                srand((unsigned)time(NULL)*time(NULL));
+                if(p->B138>0)
+                srand(p->B138_1);
+
+                if(p->B138==0)
+                srand((unsigned)time(0));
+                
                 for(n = 0; n < p->wN; ++n)
                 {
                     for(q = 0; q < p->B133; ++q)
@@ -320,7 +325,12 @@ void wave_lib_spectrum::directional_spreading(lexer* p) // modified
 
             // randomly re-shuffle the angular array
 
-            srand((unsigned)time(NULL));
+            if(p->B138>0)
+            srand(p->B138_2);
+
+            if(p->B138==0)
+            srand((unsigned)time(0));
+            
             for(n = 0; n < p->wN; ++n)
             {
                 // introduce random index

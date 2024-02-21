@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -46,8 +46,8 @@ void sediment_f::sedimentlog(lexer *p)
     if(p->mpirank==0)
     {
     sedlogout<<p->count<<"\t \t \t";
-    sedlogout<<setprecision(4)<<p->dtsed<<" \t ";
     sedlogout<<setprecision(5)<<p->simtime<<" \t ";
+    sedlogout<<setprecision(4)<<p->dtsed<<" \t ";
     sedlogout<<setprecision(4)<<p->sedtime<<" \t ";
     sedlogout<<setprecision(4)<<p->sediter<<" \t ";
     sedlogout<<setprecision(4)<<p->slidecells<<" \t ";

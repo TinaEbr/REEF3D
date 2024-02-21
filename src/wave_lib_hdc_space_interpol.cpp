@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -45,7 +45,7 @@ double wave_lib_hdc::space_interpol(lexer *p, double ***F, double x, double y, d
         
         //cout<<i<<" "<<j<<" ZSE: "<<Z[i][j][Nz-3]<<" "<<Z[i][j][Nz-2]<<endl;
 
-        if(zp>=Z[i][j][0] && zp<=Z[i][j][Nz-1] && file_version!=2)
+        if(file_version!=2)
         {
         k = pos_k(p,zp,i,j);
 

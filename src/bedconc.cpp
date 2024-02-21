@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -35,7 +35,8 @@ bedconc::bedconc(lexer *p)
     visc=p->W2;
     kappa=0.4;
     ks=2.5*d50;
-    adist=2.0*d50;
+    adist=0.5*d50;
+    deltab=3.0*d50;
     Rstar=(rhosed-rhowat)/rhowat;
 }
 
@@ -45,8 +46,6 @@ bedconc::~bedconc()
 
 void bedconc::start(lexer* p, ghostcell *pgc, sediment_fdm *s)
 {
-	
-    
     SLICELOOP4
     s->cbn(i,j) = s->cbe(i,j);
     
@@ -54,7 +53,8 @@ void bedconc::start(lexer* p, ghostcell *pgc, sediment_fdm *s)
     SLICELOOP4
     {
 	
-    Ti=MAX((s->tau_eff(i,j)-s->tau_crit(i,j)/s->tau_crit(i,j)),0.0);
+    Ti=MAX((s->tau_eff(i,j)-s->tau_crit(i,j))/s->tau_crit(i,j),0.0);
+
 
     Ds= d50*pow((Rstar*g)/(visc*visc),1.0/3.0);
     
@@ -70,10 +70,23 @@ void bedconc::start(lexer* p, ghostcell *pgc, sediment_fdm *s)
     {
         k=s->bedk(i,j);
         
-        h=s->waterlevel(i,j);
-        zdist = 0.5*p->DZP[KP];
 
-        s->cb(i,j) = s->cbe(i,j)*pow(((h-zdist)/zdist)*(adist/(h-adist)),zdist);
+        zdist = (p->ZP[KP]-s->bedzh(i,j));
+
+        s->cb(i,j) = s->cbe(i,j)*pow(((s->waterlevel(i,j)-zdist)/zdist)*(adist/(s->waterlevel(i,j)-adist)),zdist);
+        
+        //cout<<"CB: "<<s->cbe(i,j)<<" "<<s->cb(i,j)<<" "<<zdist<<" "<<adist<<" "<<s->waterlevel(i,j)<<endl;
+    }
+    
+    if(p->S34==2)
+    {
+    SLICELOOP4
+    s->qbe(i,j) += s->conc(i,j);
+    
+    pgc->gcsl_start4(p,s->qbe,1);
     }
 }
+
+
+
 

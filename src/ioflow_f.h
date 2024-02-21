@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -79,10 +79,11 @@ public:
 	virtual void phi_relax(lexer*,ghostcell*,field&);
     virtual void vof_relax(lexer*,ghostcell*,field&);
     virtual void turb_relax(lexer*,fdm*,ghostcell*,field&);
-    virtual void U_relax(lexer*,ghostcell*,double*);
-    virtual void V_relax(lexer*,ghostcell*,double*);
-    virtual void W_relax(lexer*,ghostcell*,double*);
+    virtual void U_relax(lexer*,ghostcell*,double*,double*);
+    virtual void V_relax(lexer*,ghostcell*,double*,double*);
+    virtual void W_relax(lexer*,ghostcell*,double*,double*);
     virtual void P_relax(lexer*,ghostcell*,double*);
+    virtual void WL_relax(lexer*,ghostcell*,slice&,slice&);
     virtual void fi_relax(lexer*,ghostcell*,field&,field&);
     virtual void fivec_relax(lexer*, ghostcell*, double*);
     virtual void fifsf_relax(lexer*, ghostcell*, slice&);
@@ -122,13 +123,15 @@ public:
     virtual void ini_ptf(lexer*,fdm*,ghostcell*);
     
     // nhflow
+    virtual void wavegen_precalc_nhflow(lexer*,fdm_nhf*,ghostcell*);
+    virtual void wavegen_precalc_ini_nhflow(lexer*,fdm_nhf*,ghostcell*);
     virtual void ini_nhflow(lexer*,fdm_nhf*,ghostcell*);
     virtual void discharge_nhflow(lexer*,fdm_nhf*,ghostcell*);
-    virtual void inflow_nhflow(lexer*,fdm_nhf*,ghostcell*,double*,double*,double*);
-    virtual void rkinflow_nhflow(lexer*,fdm_nhf*,ghostcell*,double*,double*,double*);
+    virtual void inflow_nhflow(lexer*,fdm_nhf*,ghostcell*,double*,double*,double*,double*,double*,double*);
+    virtual void rkinflow_nhflow(lexer*,fdm_nhf*,ghostcell*,double*,double*,double*,double*,double*,double*);
     virtual void isource_nhflow(lexer*,fdm_nhf*,ghostcell*,vrans*);
     virtual void jsource_nhflow(lexer*,fdm_nhf*,ghostcell*,vrans*);
-    virtual void ksource_nhflow(lexer*,fdm_nhf*,ghostcell*,vrans*);
+    virtual void ksource_nhflow(lexer*,fdm_nhf*,ghostcell*,vrans*);    virtual void fsfinflow_nhflow(lexer*,fdm_nhf*,ghostcell*,slice&);
     
     
     virtual void vrans_sed_update(lexer*,fdm*,ghostcell*,vrans*);
@@ -162,9 +165,9 @@ private:
 	double distcalc(lexer*,double, double, double);
 	double r1(lexer*, double, double);
 
-	double *tan_betaB70,*tan_betaB71;
-	double *betaB70,*betaB71;
-	double *dist_B70,*dist_B71;
+	double *tan_betaB71;
+	double *betaB71;
+	double *dist_B71;
 	
 	double **hydro_in,**hydro_out;
     int hydro_in_count,hydro_out_count;
@@ -173,7 +176,7 @@ private:
     
     double Apor,Bpor,porval,partval;
     
-    double epsi1,epsi2;
+    double epsi1,epsi2;    int iter0;
     
     patchBC_interface *pBC;
 };

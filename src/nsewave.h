@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -20,6 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 Author: Hans Bihs
 --------------------------------------------------------------------*/
 
+#include<vector>
 
 class convection;
 class pressure;
@@ -37,6 +38,8 @@ class diffusion;
 class poisson;
 class vrans;
 class turbulence;
+class net;
+class sixdof;
 
 using namespace std;
 
@@ -46,7 +49,8 @@ using namespace std;
 class nsewave 
 {
 public:    
-    virtual void start(lexer*, fdm*, ghostcell*, momentum*, diffusion*, turbulence*, convection*, pressure*, poisson*, solver*, solver*, ioflow*, vrans*)=0;
+    virtual void start(lexer*, fdm*, ghostcell*, momentum*, diffusion*, turbulence*, convection*, pressure*, 
+                       poisson*, solver*, solver*, ioflow*, vrans*, sixdof*, vector<net*>&)=0;
     
     virtual void ini(lexer*, fdm*, ghostcell*, ioflow*)=0;
 

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -63,10 +63,11 @@ void driver::driver_ini_cfd()
     cout<<"starting driver_ini"<<endl;
     
     // 6DOF_df and FSI
-    if(((p->X10==1 && p->X13==2)))
-    p6dof_df->initialize(p, a, pgc, pnet);
+    if(p->X10==1)
+    p6dof->initialize(p, a, pgc, pnet);
      
-     if(p->mpirank==0)
+    if(p->mpirank==0)
+    if(p->X10==1 || p->Z10>0)
     cout<<"driver FSI initialize"<<endl;
     
     if(p->Z10>0)
@@ -89,11 +90,15 @@ void driver::driver_ini_cfd()
     gtopo.start(p,a,pgc,pflow,preto,pvrans);
     }
     
-	// 6DOF
-	if((p->X10==1 && p->X13!=2) || p->X10==0)
+    // Solid Forcing
+    if(p->G3==1)
     {
-	    p6dof->initialize(p,a,pgc,pnet);
+    if(p->mpirank==0)
+    cout<<"driver solid forcing initialize"<<endl;
+    
+    pgc->solid_forcing_ini(p,a);
     }
+    
 
     // Sediment
 	if(p->S10>0)
@@ -104,6 +109,15 @@ void driver::driver_ini_cfd()
     preto->start(p,a,pgc,a->topo);
     psed->update_cfd(p,a,pgc,pflow,preto);
     pgc->start4a(p,a->topo,150);
+    
+        // Solid Forcing
+        if(p->G3==1)
+        {
+        if(p->mpirank==0)
+        cout<<"driver solid forcing initialize"<<endl;
+        
+        pgc->solid_forcing_ini(p,a);
+        }
     }
     
     // patchBC ini
@@ -138,22 +152,21 @@ void driver::driver_ini_cfd()
     pini->iniphi_io(a,p,pgc);
 	pflow->gcio_update(p,a,pgc);
 	pflow->pressure_io(p,a,pgc);
-    
     if (p->F80>0)
     pflow->vof_relax(p,pgc,a->vof);
 
     else
     if(p->F30>0 || p->F40>0)
     {
+        pini->inipsi(p,a,pgc);
         for(int qn=0;qn<20;++qn)
         pflow->phi_relax(p,pgc,a->phi);
         preini->start(a,p, a->phi, pgc, pflow);
         pfsf->update(p,a,pgc,a->phi);        
         pini->iniphi_surfarea(p,a,pgc);
-        pini->inipsi(p,a,pgc);
     }
 
-	ppart->setup(p,a,pgc);
+	ppls->setup(p,a,pgc);
 	pini->iniphi_io(a,p,pgc);
 	pflow->discharge(p,a,pgc);
 	pflow->inflow(p,a,pgc,a->u,a->v,a->w);
@@ -174,6 +187,10 @@ void driver::driver_ini_cfd()
 	pflow->pressure_io(p,a,pgc);
     
     poneph->update(p,a,pgc,pflow);
+    
+    ppress->ini(p,a,pgc);
+    
+    ppart->ini(p,a,pgc,pflow);
 
 	pgc->start1(p,a->u,10);
 	pgc->start2(p,a->v,11);

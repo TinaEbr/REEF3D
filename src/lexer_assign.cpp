@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -25,11 +25,12 @@ Author: Hans Bihs
 void lexer::control_calc()
 {
 	dt=dt_old=0.0;
-	simtime=0.0;
+	simtime=I50;
 	sedtime=0.0;
 	dtsed=0.0;
 	presstime=veltime=lsmtime=reinitime=reinitime=turbtime=0.0;
     fsitime=fbtime=0.0;
+    fbdt=fbmax=0.0;
 	printouttime=0.0;
 	xtime=0.0;
 	gctime=0.0;

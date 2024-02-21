@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -22,11 +22,10 @@ Author: Hans Bihs
 
 #include"6DOF_sflow.h"
 #include"lexer.h"
-#include"fdm2D.h"
 #include"ghostcell.h"
 #include"slice.h"
 
-void sixdof_sflow::ray_cast_z(lexer *p, fdm2D *b, ghostcell *pgc, int ts, int te)
+void sixdof_sflow::ray_cast_z(lexer *p, ghostcell *pgc, int ts, int te)
 {
 
     double ys,ye,zs,ze;

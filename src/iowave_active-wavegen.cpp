@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -191,7 +191,7 @@ void iowave::active_wavegen(lexer *p, fdm* a, ghostcell* pgc, field& u, field& v
         
         
     // NSEWAVE
-    if(p->A10==5)
+    if(p->A10==55)
     {
         for(n=0;n<gcgen4_count;++n)
 		{

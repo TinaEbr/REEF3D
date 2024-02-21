@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -32,6 +32,7 @@ Author: Hans Bihs
 #include"concentration.h"
 #include"multiphase.h"
 #include"sediment.h"
+#include"print_averaging.h"
 
 void vtu3D::pvtu(fdm* a, lexer* p, ghostcell* pgc, turbulence *pturb, heat *pheat, data *pdata, concentration *pconc, multiphase *pmp, sediment *psed)
 {
@@ -94,6 +95,8 @@ void vtu3D::pvtu(fdm* a, lexer* p, ghostcell* pgc, turbulence *pturb, heat *phea
 
 	result<<"<PPointData>"<<endl;
 	result<<"<PDataArray type=\"Float32\" Name=\"velocity\" NumberOfComponents=\"3\"/>"<<endl;
+    
+    pmean->name_pvtu(p,a,pgc,result);
 
 	result<<"<PDataArray type=\"Float32\" Name=\"pressure\"/>"<<endl;
 
@@ -117,10 +120,10 @@ void vtu3D::pvtu(fdm* a, lexer* p, ghostcell* pgc, turbulence *pturb, heat *phea
 
     if(p->P71==1)
     result<<"<PDataArray type=\"Float32\" Name=\"viscosity\"/>"<<endl;
-
+    
     if(p->P72==1)
-    result<<"<PDataArray type=\"Float32\" Name=\"omega_sig\"/>"<<endl;
-
+    result<<"<PDataArray type=\"Float32\" Name=\"VOF\"/>"<<endl;
+    
     if(p->A10==4)
     result<<"<PDataArray type=\"Float32\" Name=\"Fi\"/>"<<endl;
 

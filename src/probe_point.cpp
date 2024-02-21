@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -54,6 +54,8 @@ probe_point::probe_point(lexer *p, fdm* a, ghostcell *pgc) : probenum(p->P61)
 		sprintf(name,"./REEF3D_CFD_ProbePoint/REEF3D-CFD-Probe-Point-%i.dat",n+1);
 		
 		pout[n].open(name);
+        
+        //cout<<pout[n].is_open()<<" "<<n+1<<endl;
 
 	    pout[n]<<"Point Probe ID:  "<<n<<endl<<endl;
 		pout[n]<<"x_coord     y_coord     z_coord"<<endl;
@@ -93,7 +95,7 @@ void probe_point::start(lexer *p, fdm *a, ghostcell *pgc, turbulence *pturb)
 		uval = p->ccipol1(a->u, xp, yp, zp);
 		vval = p->ccipol2(a->v, xp, yp, zp);
 		wval = p->ccipol3(a->w, xp, yp, zp);
-		pval = p->ccipol4_a(a->press, xp, yp, zp);
+		pval = p->ccipol4_a(a->press, xp, yp, zp) - p->pressgage;
 		kval = pturb->ccipol_kinval(p, pgc, xp, yp, zp);
 		eval = pturb->ccipol_epsval(p, pgc, xp, yp, zp);
 		edval = p->ccipol4_a(a->eddyv, xp, yp, zp);

@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -50,4 +50,10 @@ void ghostcell::column_pt6_update(lexer* p, fdm* a)
 	column_pt6(p,a,cval6);
     cval_gcb6(p,a,cval6);
     cval_gcpara6(p,a,cval6);
+}
+
+void ghostcell::column_pt9_update(lexer* p, fdm* a)
+{
+	//column_pt6(p,a);
+    //cval_gcpara6(p,a,cval6);
 }

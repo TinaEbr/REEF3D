@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
 REEF3D
-Copyright 2008-2023 Hans Bihs
+Copyright 2008-2024 Hans Bihs
 
 This file is part of REEF3D.
 
@@ -65,7 +65,7 @@ void heat_RK3::start(fdm* a, lexer* p, convection* pconvec, diffusion* pdiff, so
 	LOOP
 	ark2(i,j,k) = 0.75*T(i,j,k)
                   + 0.25*Tdiff(i,j,k)
-				   + 0.25*p->dt*a->L(i,j,k);
+                  + 0.25*p->dt*a->L(i,j,k);
 	
     bcheat_start(p,a,pgc,ark2);
 	pgc->start4(p,ark2,gcval_heat);
