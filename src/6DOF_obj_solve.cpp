@@ -110,18 +110,18 @@ void sixdof_obj::rk2(lexer *p, ghostcell *pgc, int iter)
         hk_ = h_;
         ek_ = e_;
 
-        p_ = p_ + p->dt*dp_;
-        c_ = c_ + p->dt*dc_;
-        h_ = h_ + p->dt*dh_;
-        e_ = e_ + p->dt*de_;
+        p_ = p_ + p->dt*dpn1_;
+        c_ = c_ + p->dt*dcn1_;
+        h_ = h_ + p->dt*dhn1_;
+        e_ = e_ + p->dt*den1_;
     }
     
     else
     {  
-        p_ = 0.5*pk_ + 0.5*p_ + 0.5*p->dt*dp_;
-        c_ = 0.5*ck_ + 0.5*c_ + 0.5*p->dt*dc_;
-        h_ = 0.5*hk_ + 0.5*h_ + 0.5*p->dt*dh_;
-        e_ = 0.5*ek_ + 0.5*e_ + 0.5*p->dt*de_;         
+        p_ = 0.5*pk_ + 0.5*p_ + 0.5*p->dt*dpn2_;
+        c_ = 0.5*ck_ + 0.5*c_ + 0.5*p->dt*dcn2_;
+        h_ = 0.5*hk_ + 0.5*h_ + 0.5*p->dt*dhn2_;
+        e_ = 0.5*ek_ + 0.5*e_ + 0.5*p->dt*den2_;         
     }
 }
 
